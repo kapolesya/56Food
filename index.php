@@ -10,17 +10,7 @@
 
 <body>
     <!-- Header -->
-    <header>
-        <h1>56Food</h1>
-        <nav>
-            <a href="#hero">Home</a>
-            <a href="#features">Features</a>
-            <a href="#menu">Menu</a>
-            <a href="#about">About</a>
-            <a href="login.php">Login</a>
-        </nav>
-    </header>
-
+    <?php include 'includes/header.php'; ?>
     <!-- Hero Section -->
     <section id="hero" class="hero">
         <h2>Delicious Food Delivered Fast</h2>
@@ -98,11 +88,7 @@
             their daily meals!</p>
     </section>
 
-    <footer>
-        <p>&copy; 2026 56Food. All rights reserved.</p>
-        <p>Designed with ❤️ for food lovers</p>
-    </footer>
-
+    <?php include 'includes/footer.php' ?>
     <script src="#"></script>
 </body>
 
