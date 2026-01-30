@@ -4,13 +4,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Food Ordering Website</title>
+    <title>56Food</title>
     <link rel="stylesheet" href="assets/css/index.css">
 </head>
 
 <body>
     <!-- Header -->
-    <?php include 'includes/header.php'; ?>
+    <header>
+        <h1>56Food</h1>
+        <nav>
+            <a href="#hero">Home</a>
+            <a href="#features">Features</a>
+            <a href="menu.php">Menu</a>
+            <a href="#about">About</a>
+            <a href="login.php">Login</a>
+        </nav>
+    </header>
     <!-- Hero Section -->
     <section id="hero" class="hero">
         <h2>Delicious Food Delivered Fast</h2>
@@ -88,7 +97,10 @@
             their daily meals!</p>
     </section>
 
-    <?php include 'includes/footer.php' ?>
+    <footer>
+        <p>&copy; 2026 56Food. All rights reserved.</p>
+        <p>Designed with ❤️ for food lovers</p>
+    </footer>
     <script src="#"></script>
 </body>
 
