@@ -1,0 +1,180 @@
+/* ================= BODY & LAYOUT ================= */
+body {
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #f4f7fc;
+    color: #333;
+}
+
+.admin-wrapper {
+    display: flex;
+    min-height: 100vh;
+    transition: all 0.3s ease;
+}
+
+/* ================= SIDEBAR ================= */
+.sidebar {
+    width: 240px;
+    background: #1f2937; /* dark gray */
+    color: white;
+    display: flex;
+    flex-direction: column;
+    transition: all 0.3s ease;
+}
+
+.sidebar h2 {
+    text-align: center;
+    padding: 20px 0;
+    color: #f59e0b; /* amber/orange */
+    font-size: 24px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    border-bottom: 1px solid #374151;
+}
+
+.sidebar ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    flex: 1;
+}
+
+.sidebar ul li {
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.sidebar ul li a {
+    display: block;
+    padding: 15px 25px;
+    color: white;
+    text-decoration: none;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    border-left: 4px solid transparent;
+}
+
+.sidebar ul li a:hover {
+    background: #f59e0b; /* hover orange */
+    color: white;
+    border-left: 4px solid #fff;
+}
+
+.sidebar ul li a.active {
+    background: #f59e0b;
+    color: white;
+    border-left: 4px solid #fff;
+    font-weight: bold;
+}
+
+/* ================= MAIN CONTENT ================= */
+.main-content {
+    flex: 1;
+    background: #f4f7fc;
+    padding: 20px 30px;
+}
+
+.admin-header {
+    background: #f59e0b;
+    color: white;
+    padding: 15px 20px;
+    font-size: 20px;
+    font-weight: 600;
+    border-radius: 8px 8px 0 0;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+/* ================= TAB PANEL ================= */
+.tab-panel {
+    display: none;
+    padding: 20px 0;
+}
+
+.tab-panel.active {
+    display: block;
+}
+
+/* ================= TABLE ================= */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    background: #fff;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+table th,
+table td {
+    border: none;
+    padding: 12px 15px;
+    text-align: left;
+}
+
+table th {
+    background: #1f2937;
+    color: #f59e0b;
+    text-transform: uppercase;
+    font-size: 14px;
+}
+
+table tr {
+    border-bottom: 1px solid #e5e7eb;
+    transition: background 0.3s ease;
+}
+
+table tr:hover {
+    background: #fef3c7; /* light orange highlight */
+}
+
+/* ================= BUTTONS ================= */
+.btn {
+    padding: 6px 12px;
+    border: none;
+    cursor: pointer;
+    border-radius: 6px;
+    margin: 2px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.btn.confirm {
+    background: #10b981; /* green */
+    color: white;
+}
+
+.btn.confirm:hover {
+    background: #059669;
+}
+
+.btn.delete {
+    background: #ef4444; /* red */
+    color: white;
+}
+
+.btn.delete:hover {
+    background: #b91c1c;
+}
+
+.btn.edit {
+    background: #3b82f6; /* blue */
+    color: white;
+}
+
+.btn.edit:hover {
+    background: #1d4ed8;
+}
+
+.btn.add,
+.btn.add-user {
+    background: #f59e0b; /* orange */
+    color: white;
+    margin-bottom: 15px;
+}
+
+.btn.add:hover,
+.btn.add-user:hover {
+    background: #d97706;
+}
