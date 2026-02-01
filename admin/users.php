@@ -18,7 +18,7 @@
                 <li><a href="dashboard.php">Dashboard</a></li>
                 <li><a href="orders.php">Orders</a></li>
                 <li><a href="menus.php">Menus</a></li>
-                <li class="active"><a href="users.php">Users</a></li>
+                <li><a href="users.php" class="active">Users</a></li>
                 <li><a href="../logout.php">Logout</a></li>
             </ul>
         </aside>
@@ -51,19 +51,13 @@
                             <td>admin@56food.com</td>
                             <td>Admin</td>
                             <td>
-                                <button class="btn edit">Edit</button>
+                                <button class="btn add"><a href="add_user.php" style="color: white; text-decoration: none;">Add</a></button>
+                                <button class="btn edit"><a href="edit_user.php" style="color: white; text-decoration: none;">Edit</a></button>
                                 <button class="btn delete">Remove</button>
                             </td>
                         </tr>
                         <tr>
-                            <td>2</td>
-                            <td>John Doe</td>
-                            <td>johndoe@example.com</td>
-                            <td>Customer</td>
-                            <td>
-                                <button class="btn edit">Edit</button>
-                                <button class="btn delete">Remove</button>
-                            </td>
+
                         </tr>
                     </tbody>
                 </table>

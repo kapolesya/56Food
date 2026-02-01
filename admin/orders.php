@@ -16,7 +16,7 @@
             <h2>56Food</h2>
             <ul>
                 <li><a href="dashboard.php">Dashboard</a></li>
-                <li class="active" data-tab="orders.php">Orders</li>
+                <li><a href="orders.php" class="active">Orders</a></li>
                 <li><a href="menus.php">Menus</a></li>
                 <li><a href="users.php">Users</a></li>
                 <li><a href="../logout.php">Logout</a></li>
@@ -38,6 +38,7 @@
                     <tr>
                         <th>ID</th>
                         <th>Customer</th>
+                        <th>Order</th>
                         <th>Total</th>
                         <th>Status</th>
                         <th>Action</th>
@@ -46,11 +47,13 @@
                     <tr>
                         <td>#101</td>
                         <td>John Doe</td>
+                        <td>Chapati</td>
                         <td>$15.98</td>
                         <td class="status">Pending</td>
                         <td>
                             <button class="btn confirm">Confirm</button>
                             <button class="btn delete">Delete</button>
+                            <button class="btn view"><a href="view_order.php" style="color: green; text-decoration: none;">View</a></button>
                         </td>
                     </tr>
                 </table>

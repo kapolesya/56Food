@@ -17,7 +17,7 @@
             <ul>
                 <li><a href="dashboard.php">Dashboard</a></li>
                 <li><a href="orders.php">Orders</a></li>
-                <li class="active"><a href="menus.php">Menus</a></li>
+                <li><a href="menus.php" class="active">Menus</a></li>
                 <li><a href="users.php">Users</a></li>
                 <li><a href="../logout.php">Logout</a></li>
             </ul>
@@ -53,7 +53,8 @@
                             <td>$5.99</td>
                             <td>Available</td>
                             <td>
-                                <button class="btn edit">Edit</button>
+                                <button class="btn add"><a href="add_menus.php" style="color: white; text-decoration: none;">Add</a></button>
+                                <button class="btn edit"><a href="edit_menus.php" style="color: white; text-decoration: none;">Edit</a></button>
                                 <button class="btn delete">Remove</button>
                             </td>
                         </tr>
