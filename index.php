@@ -1,3 +1,7 @@
+<?php
+session_start(); // Start session to check if user is logged in
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -17,9 +21,18 @@
             <a href="#features">Features</a>
             <a href="menu.php">Menu</a>
             <a href="#about">About</a>
-            <a href="login.php">Login</a>
+
+            <!-- Dynamic Navigation -->
+            <?php if (isset($_SESSION['user_id'])): ?>
+                <a href="cart.php">Cart</a>
+                <a href="logout.php">Logout (<?= htmlspecialchars($_SESSION['user_name']) ?>)</a>
+            <?php else: ?>
+                <a href="login.php">Login</a>
+                <a href="register.php">Register</a>
+            <?php endif; ?>
         </nav>
     </header>
+
     <!-- Hero Section -->
     <section id="hero" class="hero">
         <h2>Delicious Food Delivered Fast</h2>
@@ -29,8 +42,7 @@
 
     <!-- Features Section -->
     <section id="features" class="features">
-        <h2
-            style="text-align: center; font-size: 36px; color: #ff6347; margin: 40px 0 30px 0; font-weight: bold; text-transform: uppercase; letter-spacing: 2px; text-shadow: 2px 2px 4px rgba(0,0,0,0.1); padding: 20px 0; border-bottom: 3px solid #ff6347; display: inline-block; width: 100%;">
+        <h2 style="text-align: center; font-size: 36px; color: #ff6347; margin: 40px 0 30px 0; font-weight: bold; text-transform: uppercase; letter-spacing: 2px; text-shadow: 2px 2px 4px rgba(0,0,0,0.1); padding: 20px 0; border-bottom: 3px solid #ff6347; display: inline-block; width: 100%;">
             Why You Choose Us?</h2>
         <div class="feature">
             <img src="https://img.icons8.com/color/96/rocket.png" alt="Fast Delivery">
@@ -101,7 +113,7 @@
         <p>&copy; 2026 56Food. All rights reserved.</p>
         <p>Designed with ❤️ for food lovers</p>
     </footer>
-    <script src="#"></script>
+
 </body>
 
 </html>

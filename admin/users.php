@@ -32,7 +32,7 @@
 
             <section class="tab-panel active">
 
-                <button class="btn add-user" id="addUserBtn">Add User</button>
+                <button class="btn add-user" id="addUserBtn"><a href="add_user.php" style="text-decoration: none; color: white;">Add User</a></button>
 
                 <table>
                     <thead>
@@ -51,7 +51,6 @@
                             <td>admin@56food.com</td>
                             <td>Admin</td>
                             <td>
-                                <button class="btn add"><a href="add_user.php" style="color: white; text-decoration: none;">Add</a></button>
                                 <button class="btn edit"><a href="edit_user.php" style="color: white; text-decoration: none;">Edit</a></button>
                                 <button class="btn delete">Remove</button>
                             </td>
