@@ -3,6 +3,9 @@ session_start(); // We need sessions to store logged-in user data
 
 require_once "include/conn.php";
 
+// Optional: redirect back to original page after login
+$redirectTo = $_GET['redirect'] ?? 'index.php';
+
 $errors = [];
 $email = '';
 
@@ -10,6 +13,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     $email    = trim($_POST["email"] ?? '');
     $password = $_POST["password"] ?? ''; // do NOT trim password
+    $redirectTo = $_POST['redirect'] ?? $redirectTo;
 
     // ── Basic validation ───────────────────────────────────────
     if (empty($email)) {
@@ -24,7 +28,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     if (empty($errors)) {
         // ── Find user by email ────────────────────────────────────
-        if ($stmt = mysqli_prepare($conn, "SELECT id, name, email, password FROM users WHERE email = ? LIMIT 1")) {
+        $sql = "SELECT id, name, email, password, role 
+                FROM users 
+                WHERE email = ? 
+                LIMIT 1";
+
+        if ($stmt = mysqli_prepare($conn, $sql)) {
             mysqli_stmt_bind_param($stmt, "s", $email);
             mysqli_stmt_execute($stmt);
             $result = mysqli_stmt_get_result($stmt);
@@ -36,8 +45,16 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     $_SESSION['user_id']    = $user['id'];
                     $_SESSION['user_name']  = $user['name'];
                     $_SESSION['user_email'] = $user['email'];
+                    $_SESSION['user_role']  = $user['role']; // 'admin' or 'customer'
 
-                    header("Location: index.php"); // redirect to dashboard or home
+                    // If admin, prefer going to the admin dashboard
+                    if ($user['role'] === 'admin') {
+                        header("Location: admin/dashboard.php");
+                        exit();
+                    }
+
+                    // Normal customer: redirect to requested page or home
+                    header("Location: " . htmlspecialchars($redirectTo, ENT_QUOTES));
                     exit();
                 } else {
                     $errors[] = "Incorrect password.";
@@ -81,6 +98,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             <?php endif; ?>
 
             <form id="loginForm" method="POST" novalidate>
+                <!-- Hidden field so we can send the redirect target back -->
+                <input type="hidden" name="redirect" value="<?= htmlspecialchars($redirectTo) ?>">
                 <input type="email" name="email" placeholder="Email address" value="<?= htmlspecialchars($email) ?>" required autofocus>
                 <input type="password" name="password" placeholder="Password" required>
                 <button type="submit">Login</button>
