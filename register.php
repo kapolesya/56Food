@@ -53,6 +53,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
         if (empty($errors)) {
             // ── Register user ───────────────────────────────────────
+            // NOTE: role column has default 'customer', so we don't need to set it explicitly.
             $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
             $stmt = mysqli_prepare(
