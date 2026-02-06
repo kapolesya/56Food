@@ -1,9 +1,28 @@
 <?php
 session_start();
 
-// Hapa unaweza ku-check kama mtu amelogin
+require_once "include/conn.php";
+
+// Check if user is logged in (for navbar + add-to-cart behaviour)
 $isLoggedIn = isset($_SESSION['user_id']); // true ikiwa amelogin
 $username = $isLoggedIn ? $_SESSION['user_name'] : ''; // jina la user
+
+// Fetch available menu items from database
+$menuItems = [];
+
+$sql = "SELECT id, name, description, price, image 
+        FROM menu 
+        WHERE status = 'available'
+        ORDER BY created_at DESC";
+
+if ($stmt = mysqli_prepare($conn, $sql)) {
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+    while ($row = mysqli_fetch_assoc($result)) {
+        $menuItems[] = $row;
+    }
+    mysqli_stmt_close($stmt);
+}
 ?>
 
 <!DOCTYPE html>
@@ -100,14 +119,10 @@ $username = $isLoggedIn ? $_SESSION['user_name'] : ''; // jina la user
             <a href="index.php">Home</a>
             <a href="menu.php">Menu</a>
             <a href="cart.php">Cart</a>
-            <a href="index.php#features">Features</a>
-            <a href="index.php#about">About</a>
-
             <?php if ($isLoggedIn): ?>
-                <!-- Ikiwa amelogin onyesha jina na logout -->
+                <a href="orders.php">My Orders</a>
                 <a href="logout.php">Logout (<?= htmlspecialchars($username) ?>)</a>
             <?php else: ?>
-                <!-- Ikiwa bado hajalogin onyesha login -->
                 <a href="login.php">Login</a>
             <?php endif; ?>
         </nav>
@@ -119,51 +134,37 @@ $username = $isLoggedIn ? $_SESSION['user_name'] : ''; // jina la user
 
         <div class="menu-container">
 
-            <!-- FOOD CARD -->
-            <div class="food-card">
-                <img src="https://images.unsplash.com/photo-1600891964599-f61ba0e24092?fit=crop&w=400&q=80">
-                <h4>Cheese Burger</h4>
-                <p id="price">$5.99</p>
-                <p id="description">Crispy fried chicken with herbs and spices.
-                    Crispy fried chicken with herbs and spices
-                </p>
-                <button class="add-to-cart"
-                    data-id="1"
-                    data-name="Cheese Burger"
-                    data-price="5.99">
-                    Add to Cart
-                </button>
-            </div>
+            <?php if (empty($menuItems)): ?>
+                <p>No menu items available at the moment. Please check back later.</p>
+            <?php else: ?>
+                <?php foreach ($menuItems as $item): ?>
+                    <div class="food-card">
+                        <?php
+                        // Use uploaded image if present, otherwise a placeholder
+                        $imgSrc = !empty($item['image'])
+                            ? 'assets/images/foods/' . htmlspecialchars($item['image'])
+                            : 'https://images.unsplash.com/photo-1600891964599-f61ba0e24092?fit=crop&w=400&q=80';
+                        ?>
+                        <img src="<?= $imgSrc ?>" alt="<?= htmlspecialchars($item['name']) ?>">
+                        <h4><?= htmlspecialchars($item['name']) ?></h4>
+                        <p id="price">$<?= number_format($item['price'], 2) ?></p>
+                        <p id="description">
+                            <?= htmlspecialchars($item['description'] ?? '') ?>
+                        </p>
 
-            <div class="food-card">
-                <img src="https://images.unsplash.com/photo-1548365328-9f547fb0953c?fit=crop&w=400&q=80">
-                <h4>Pepperoni Pizza</h4>
-                <p id="price">$9.99</p>
-                <p id="description">Crispy fried chicken with herbs and spices.
-                    Crispy fried chicken with herbs and spices
-                </p>
-                <button class="add-to-cart"
-                    data-id="2"
-                    data-name="Pepperoni Pizza"
-                    data-price="9.99">
-                    Add to Cart
-                </button>
-            </div>
-
-            <div class="food-card">
-                <img src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?fit=crop&w=400&q=80">
-                <h4>Fried Chicken</h4>
-                <p id="price">$7.50</p>
-                <p id="description">Crispy fried chicken with herbs and spices.
-                    Crispy fried chicken with herbs and spices
-                </p>
-                <button class="add-to-cart"
-                    data-id="3"
-                    data-name="Fried Chicken"
-                    data-price="7.50">
-                    Add to Cart
-                </button>
-            </div>
+                        <!-- Add to cart uses a simple POST form -->
+                        <form method="POST" action="cart.php" style="margin-top:10px;">
+                            <input type="hidden" name="action" value="add">
+                            <input type="hidden" name="menu_id" value="<?= (int) $item['id'] ?>">
+                            <input type="number" name="quantity" value="1" min="1"
+                                style="width:60px; padding:6px; margin-right:6px;">
+                            <button type="submit" class="add-to-cart">
+                                Add to Cart
+                            </button>
+                        </form>
+                    </div>
+                <?php endforeach; ?>
+            <?php endif; ?>
 
         </div>
     </section>
