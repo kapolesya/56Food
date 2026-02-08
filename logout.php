@@ -1,13 +1,36 @@
 <?php
 session_start();
 
-// Clear all session data
+require_once __DIR__ . "/include/conn.php";
+require_once __DIR__ . "/include/activity_log.php";
+
+// ================================
+// Log logout activity BEFORE session destroy
+// ================================
+if (!empty($_SESSION['user_id'])) {
+    log_activity(
+        $conn,
+        $_SESSION['user_id'],
+        'LOGOUT',
+        'User logged out of the system'
+    );
+}
+
+// ================================
+// Clear session data
+// ================================
 $_SESSION = [];
 
-// Destroy the session
-session_destroy();
+// ================================
+// Destroy session
+// ================================
+if (session_id() !== '') {
+    session_destroy();
+}
 
-// Optional: remove session cookie
+// ================================
+// Remove session cookie (security best practice)
+// ================================
 if (ini_get("session.use_cookies")) {
     $params = session_get_cookie_params();
     setcookie(
@@ -21,6 +44,8 @@ if (ini_get("session.use_cookies")) {
     );
 }
 
-// Redirect user to login page or home page
+// ================================
+// Redirect to login page
+// ================================
 header("Location: login.php");
-exit();
+exit;
