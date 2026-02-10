@@ -1,3 +1,62 @@
+<?php
+require_once __DIR__ . "/../include/conn.php";
+require_once __DIR__ . "/../include/auth.php";
+
+require_admin();
+
+$errors = [];
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $name     = trim($_POST['full_name'] ?? '');
+    $email    = trim($_POST['email'] ?? '');
+    $phone    = trim($_POST['phone'] ?? '');
+    $password = $_POST['password'] ?? '';
+    $role     = $_POST['role'] ?? 'customer';
+
+    if ($name === '') {
+        $errors[] = "Full name is required.";
+    }
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $errors[] = "Valid email is required.";
+    }
+    if (strlen($password) < 8) {
+        $errors[] = "Password must be at least 8 characters.";
+    }
+    if (!in_array($role, ['admin', 'customer'], true)) {
+        $role = 'customer';
+    }
+
+    // Check email unique
+    if (empty($errors)) {
+        $sql = "SELECT id FROM users WHERE email = ? LIMIT 1";
+        if ($stmt = mysqli_prepare($conn, $sql)) {
+            mysqli_stmt_bind_param($stmt, "s", $email);
+            mysqli_stmt_execute($stmt);
+            mysqli_stmt_store_result($stmt);
+            if (mysqli_stmt_num_rows($stmt) > 0) {
+                $errors[] = "Email already exists.";
+            }
+            mysqli_stmt_close($stmt);
+        }
+    }
+
+    if (empty($errors)) {
+        $hash = password_hash($password, PASSWORD_DEFAULT);
+        $sql = "INSERT INTO users (name, email, phone, password, role) VALUES (?, ?, ?, ?, ?)";
+        if ($stmt = mysqli_prepare($conn, $sql)) {
+            mysqli_stmt_bind_param($stmt, "sssss", $name, $email, $phone, $hash, $role);
+            if (mysqli_stmt_execute($stmt)) {
+                mysqli_stmt_close($stmt);
+                header("Location: users.php");
+                exit();
+            }
+            $errors[] = "Failed to save user.";
+            mysqli_stmt_close($stmt);
+        }
+    }
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -79,6 +138,7 @@
                 <li><a href="orders.php">Orders</a></li>
                 <li><a href="menus.php">Menus</a></li>
                 <li class="active"><a href="users.php">Users</a></li>
+                <li><a href="reports.php">Reports</a></li>
                 <li><a href="../logout.php">Logout</a></li>
             </ul>
         </aside>
@@ -92,7 +152,14 @@
 
             <section class="tab-panel active">
 
-                <form action="save-user.php" method="POST" class="form-box">
+                <?php if (!empty($errors)): ?>
+                    <div style="color:#721c24; background:#f8d7da; padding:10px; margin-bottom:15px; border-radius:6px;">
+                        <strong>Error:</strong><br>
+                        • <?= implode('<br>• ', array_map('htmlspecialchars', $errors)) ?>
+                    </div>
+                <?php endif; ?>
+
+                <form action="add_user.php" method="POST" class="form-box">
 
                     <div class="form-group">
                         <label>Full Name</label>
@@ -119,7 +186,7 @@
                         <select name="role" required>
                             <option value="">-- Select Role --</option>
                             <option value="admin">Admin</option>
-                            <option value="user">User</option>
+                            <option value="customer">Customer</option>
                         </select>
                     </div>
 

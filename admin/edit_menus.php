@@ -1,9 +1,87 @@
+<?php
+require_once __DIR__ . "/../include/conn.php";
+require_once __DIR__ . "/../include/auth.php";
+
+require_admin();
+
+// Check menu ID
+if (!isset($_GET['id'])) {
+    die("Menu ID missing.");
+}
+
+$menu_id = (int)$_GET['id'];
+
+// Fetch menu from DB
+$stmt = $conn->prepare("SELECT * FROM menu WHERE id = ?");
+$stmt->bind_param("i", $menu_id);
+$stmt->execute();
+$result = $stmt->get_result();
+$menu = $result->fetch_assoc();
+$stmt->close();
+
+if (!$menu) {
+    die("Menu not found.");
+}
+
+// Initialize variables
+$name        = $menu['name'] ?? '';
+$price       = $menu['price'] ?? '';
+$description = $menu['description'] ?? '';
+$image       = $menu['image'] ?? '';
+$success_msg = '';
+$error_msg   = '';
+
+// Handle form submission
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $name        = trim($_POST['name'] ?? '');
+    $price       = trim($_POST['price'] ?? '');
+    $description = trim($_POST['description'] ?? '');
+
+    if (!$name || !$price || !$description) {
+        $error_msg = "All fields are required.";
+    } else {
+        // Handle image upload if new image provided
+        $image_to_save = $image;
+        if (!empty($_FILES['food_image']['name'])) {
+            $upload_dir = __DIR__ . "/../uploads/";
+            $tmp_name   = $_FILES['food_image']['tmp_name'];
+            $filename   = time() . '_' . basename($_FILES['food_image']['name']);
+            $target     = $upload_dir . $filename;
+
+            if (move_uploaded_file($tmp_name, $target)) {
+                // Delete old image
+                if ($image && file_exists($upload_dir . $image)) {
+                    unlink($upload_dir . $image);
+                }
+                $image_to_save = $filename;
+            } else {
+                $error_msg = "Failed to upload new image.";
+            }
+        }
+
+        if (empty($error_msg)) {
+            // Update menu in DB
+            $stmt = $conn->prepare("UPDATE menu SET name = ?, price = ?, description = ?, image = ? WHERE id = ?");
+            $stmt->bind_param("sdssi", $name, $price, $description, $image_to_save, $menu_id);
+            if ($stmt->execute()) {
+                $success_msg = "Menu updated successfully!";
+                $image = $image_to_save; // update current image variable
+            } else {
+                $error_msg = "Failed to update menu.";
+            }
+            $stmt->close();
+        }
+    }
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <title>Edit Menu | 56Food Admin</title>
+    <link rel="stylesheet" href="../assets/css/admin/dashboard.css">
     <style>
         .form-box {
             max-width: 600px;
@@ -11,7 +89,7 @@
             padding: 20px;
             border: 1px solid #ccc;
             border-radius: 5px;
-            background-color: #f9f9f9;
+            background: #f9f9f9;
         }
 
         .form-group {
@@ -37,30 +115,40 @@
 
         .form-actions .btn {
             padding: 10px 15px;
-            margin-right: 10px;
             border: none;
             border-radius: 3px;
             cursor: pointer;
+            color: #fff;
+            text-decoration: none;
         }
 
-        .form-actions .btn.add {
-            background-color: #28a745;
-            color: white;
+        .btn.add {
+            background: #28a745;
         }
 
-        .form-actions .btn.delete {
-            background-color: #dc3545;
-            color: white;
+        .btn.delete {
+            background: #dc3545;
+        }
+
+        img.menu-image {
+            max-width: 200px;
+            margin-bottom: 10px;
+        }
+
+        .success {
+            color: green;
+            margin-bottom: 10px;
+        }
+
+        .error {
+            color: red;
+            margin-bottom: 10px;
         }
     </style>
-    <link rel="stylesheet" href="../assets/css/admin/dashboard.css">
 </head>
 
 <body>
-
     <div class="admin-wrapper">
-
-        <!-- SIDEBAR -->
         <aside class="sidebar">
             <h2>56Food</h2>
             <ul>
@@ -72,56 +160,50 @@
             </ul>
         </aside>
 
-        <!-- MAIN CONTENT -->
         <main class="main-content">
-
             <header class="admin-header">
                 <h3>Edit Menu</h3>
             </header>
 
-            <!-- ADD MENU FORM -->
             <section class="tab-panel active">
-
-                <form action="save-menu.php"
-                    method="POST"
-                    enctype="multipart/form-data"
-                    class="form-box">
+                <form action="" method="POST" enctype="multipart/form-data" class="form-box">
+                    <?php if (!empty($success_msg)) echo "<div class='success'>$success_msg</div>"; ?>
+                    <?php if (!empty($error_msg)) echo "<div class='error'>$error_msg</div>"; ?>
 
                     <div class="form-group">
                         <label>Food Name</label>
-                        <input type="text" name="food_name" placeholder="Enter food name" required value="Chapati">
+                        <input type="text" name="name" required value="<?= htmlspecialchars($name) ?>">
                     </div>
 
                     <div class="form-group">
                         <label>Price</label>
-                        <input type="number" step="0.01" name="price" placeholder="Enter price" required value="5000">
+                        <input type="number" step="0.01" name="price" required value="<?= htmlspecialchars($price) ?>">
                     </div>
 
                     <div class="form-group">
                         <label>Description</label>
-                        <textarea name="description"
-                            rows="4"
-
-                            required value="Chapati with butter and vegetables."></textarea>
+                        <textarea name="description" rows="4" required><?= htmlspecialchars($description) ?></textarea>
                     </div>
 
                     <div class="form-group">
                         <label>Food Image</label>
-                        <input type="file" name="food_image" accept="image/*" required>
+                        <?php if (!empty($image)): ?>
+                            <br>
+                            <img src="../uploads/<?= htmlspecialchars($image) ?>" class="menu-image" alt="Menu Image">
+                            <br>
+                        <?php endif; ?>
+                        <input type="file" name="food_image" accept="image/*">
+                        <small>Leave blank to keep existing image.</small>
                     </div>
 
                     <div class="form-actions">
-                        <button type="submit" class="btn add">Save Menu</button>
-                        <a href="menus.php" class="btn delete" style="text-decoration: none;">Cancel</a>
+                        <button type="submit" class="btn add">Update Menu</button>
+                        <a href="menus.php" class="btn delete">Cancel</a>
                     </div>
-
                 </form>
-
             </section>
-
         </main>
     </div>
-
 </body>
 
 </html>
