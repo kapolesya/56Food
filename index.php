@@ -152,6 +152,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['menu_id'])) {
     <!-- Header -->
     <header>
         <h1>56Food</h1>
+
         <nav>
             <a href="#hero">Home</a>
             <a href="#features">Features</a>
@@ -240,6 +241,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['menu_id'])) {
         <p>&copy; 2026 56Food. All rights reserved.</p>
         <p>Designed with ❤️ for food lovers</p>
     </footer>
+    <button id="back-to-top" style="display:none; position:fixed; bottom:20px; right:20px; padding:10px;">↑ Top</button>
+    <script>
+        //button ya kurudi juu//
+        const backBtn = document.getElementById("back-to-top");
+
+        window.addEventListener("scroll", () => {
+            if (window.scrollY > 300) backBtn.style.display = "block";
+            else backBtn.style.display = "none";
+        });
+
+        backBtn.addEventListener("click", () => {
+            window.scrollTo({
+                top: 0,
+                behavior: "smooth"
+            });
+        });
+        //user scoll//
+        document.querySelectorAll('a[href^="#"]').forEach(link => {
+            link.addEventListener("click", function(e) {
+                const target = document.querySelector(this.getAttribute("href"));
+                if (target) {
+                    e.preventDefault();
+                    target.scrollIntoView({
+                        behavior: "smooth"
+                    });
+                }
+            });
+        });
+    </script>
+
+
+
 </body>
 
 </html>
