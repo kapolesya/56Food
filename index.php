@@ -76,24 +76,45 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['menu_id'])) {
             margin: 10px 0 5px;
         }
 
+        /* ===== MENU GRID ===== */
         .menu-items {
-            display: flex;
-            flex-wrap: wrap;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            /* 3 per row */
             gap: 20px;
-            justify-content: center;
+            max-width: 800px;
+            margin: auto;
         }
 
         .menu-item {
             border: 1px solid #ccc;
             padding: 15px;
-            border-radius: 8px;
-            width: 250px;
+            border-radius: 10px;
             text-align: center;
+            height: 400px;
+            /* height sawa */
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            background: #fff;
         }
 
         .menu-item img {
             width: 100%;
+            height: 160px;
+            object-fit: cover;
+            /* image zisipindike */
             border-radius: 8px;
+        }
+
+        .menu-item h4 {
+            margin: 10px 0 5px;
+        }
+
+        .menu-item p {
+            flex-grow: 1;
+            /* description ijaze space */
+            font-size: 14px;
         }
 
         .order-btn {
@@ -104,8 +125,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['menu_id'])) {
             border: none;
             border-radius: 5px;
             cursor: pointer;
+            transition: 0.3s ease;
+        }
+
+        .order-btn:hover {
+            background-color: #e5533d;
+        }
+
+        /* ===== Responsive ===== */
+        @media (max-width: 900px) {
+            .menu-items {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .menu-items {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
+
 </head>
 
 <body>
@@ -115,7 +155,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['menu_id'])) {
         <nav>
             <a href="#hero">Home</a>
             <a href="#features">Features</a>
-            <a href="#menu">Menu</a>
+            <a href="menu.php">Menu</a>
             <a href="#about">About</a>
             <?php if ($userId): ?>
                 <a href="cart.php">Cart</a>
@@ -158,7 +198,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['menu_id'])) {
 
     <!-- Menu Section / Popular Dishes -->
     <section id="menu" class="menu">
-        <h2 style="text-align:center;">Our Popular Dishes</h2>
+        <h2 style="text-align:center;">Our Dishes</h2>
         <div class="menu-items">
             <?php
             // Fetch 6 latest available menu items
