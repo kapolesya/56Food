@@ -186,7 +186,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($cartItems)) {
                     <?php foreach ($cartItems as $item): ?>
                         <div class="summary-item">
                             <span><?= htmlspecialchars($item['name']) ?> x<?= (int) $item['quantity'] ?></span>
-                            <span>$<?= number_format($item['price'] * $item['quantity'], 2) ?></span>
+                            <span>Tsh <?= number_format($item['price'] * $item['quantity'], 2) ?></span>
                         </div>
                     <?php endforeach; ?>
 
@@ -194,7 +194,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($cartItems)) {
 
                     <div class="summary-total">
                         <strong>Total:</strong>
-                        <strong>$<?= number_format($totalPrice, 2) ?></strong>
+                        <strong>Tsh <?= number_format($totalPrice, 2) ?></strong>
                     </div>
                 <?php endif; ?>
             </div>
@@ -214,7 +214,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($cartItems)) {
                     <option value="card">Card</option>
                 </select>
 
-                <button type="submit"<?= empty($cartItems) ? ' disabled' : '' ?>>Confirm Order</button>
+                <button type="submit" <?= empty($cartItems) ? ' disabled' : '' ?>>Confirm Order</button>
             </form>
 
         </div>

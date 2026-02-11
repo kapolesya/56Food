@@ -195,7 +195,7 @@ if ($stmt = mysqli_prepare($conn, $sql)) {
                         <img src="<?= $img ?>" alt="<?= htmlspecialchars($item['name']) ?>">
                         <div class="cart-details">
                             <h4><?= htmlspecialchars($item['name']) ?></h4>
-                            <p>$<?= number_format($item['price'], 2) ?></p>
+                            <p>Tsh <?= number_format($item['price'], 2) ?></p>
                             <label>Qty: <input type="number" name="items[<?= (int)$item['id'] ?>]" value="<?= (int)$item['quantity'] ?>" min="1"></label>
                         </div>
                         <button type="submit" name="remove_id" value="<?= (int)$item['id'] ?>" class="remove-btn">Remove</button>
@@ -204,7 +204,7 @@ if ($stmt = mysqli_prepare($conn, $sql)) {
 
                 <div class="cart-summary">
                     <p>Total Items: <?= $totalItems ?></p>
-                    <p>Total Price: <strong>$<?= number_format($totalPrice, 2) ?></strong></p>
+                    <p>Total Price: <strong>Tsh <?= number_format($totalPrice, 2) ?></strong></p>
                     <button type="submit" class="checkout-btn">Update Cart</button>
                     <a href="order.php" class="checkout-btn" style="text-decoration:none;">Proceed to Checkout</a>
                 </div>
