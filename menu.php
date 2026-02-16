@@ -147,7 +147,7 @@ if ($stmt = mysqli_prepare($conn, $sql)) {
                         ?>
                         <img src="<?= $imgSrc ?>" alt="<?= htmlspecialchars($item['name']) ?>">
                         <h4><?= htmlspecialchars($item['name']) ?></h4>
-                        <p id="price">$<?= number_format($item['price'], 2) ?></p>
+                        <p id="price">Tsh<?= number_format($item['price'], 2) ?></p>
                         <p id="description">
                             <?= htmlspecialchars($item['description'] ?? '') ?>
                         </p>

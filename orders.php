@@ -234,7 +234,7 @@ foreach ($orders as $o) {
 
         <div class="orders-summary">
             <p><strong>Total Orders:</strong> <?= $totalOrders ?></p>
-            <p><strong>Total Spent:</strong> $<?= number_format($totalSpent, 2) ?></p>
+            <p><strong>Total Spent:</strong> Tsh<?= number_format($totalSpent, 2) ?></p>
         </div>
 
         <?php if (empty($orders)): ?>
@@ -262,7 +262,7 @@ foreach ($orders as $o) {
                                 <?php endforeach; ?>
                             </ul>
                         </td>
-                        <td>$<?= number_format($order['total_amount'], 2) ?></td>
+                        <td>Tsh <?= number_format($order['total_amount'], 2) ?></td>
                         <td>
                             <span class="status-badge status-<?= strtolower($order['status']) ?>">
                                 <?= $order['status'] ?>
