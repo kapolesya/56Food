@@ -40,6 +40,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
             }
         }
+
+        // If request is AJAX (frontend sends ajax=1), return JSON with updated cart count
+        if (!empty($_POST['ajax']) && $_POST['ajax'] === '1') {
+            $countSql = "SELECT COALESCE(SUM(quantity),0) AS total FROM cart WHERE user_id = ?";
+            if ($cstmt = mysqli_prepare($conn, $countSql)) {
+                mysqli_stmt_bind_param($cstmt, "i", $userId);
+                mysqli_stmt_execute($cstmt);
+                $cres = mysqli_stmt_get_result($cstmt);
+                $crow = mysqli_fetch_assoc($cres);
+                mysqli_stmt_close($cstmt);
+                $totalItems = (int)($crow['total'] ?? 0);
+            } else {
+                $totalItems = 0;
+            }
+
+            header('Content-Type: application/json; charset=utf-8');
+            echo json_encode(['success' => true, 'message' => 'Added to cart', 'totalItems' => $totalItems]);
+            exit();
+        }
+
         header("Location: cart.php");
         exit();
     }

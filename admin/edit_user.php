@@ -4,7 +4,7 @@ require_once __DIR__ . "/../include/auth.php";
 
 require_admin();
 
-$errors = [];
+// This page renders the edit form. Submission is handled via AJAX at /api/admin/users_update.php
 
 $id = (int) ($_GET['id'] ?? 0);
 if ($id <= 0) {
@@ -25,61 +25,6 @@ if ($stmt = mysqli_prepare($conn, $sql)) {
 if (empty($user)) {
     header("Location: users.php");
     exit();
-}
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $name     = trim($_POST['full_name'] ?? '');
-    $email    = trim($_POST['email'] ?? '');
-    $phone    = trim($_POST['phone'] ?? '');
-    $password = $_POST['password'] ?? '';
-    $role     = $_POST['role'] ?? $user['role'];
-
-    if ($name === '') {
-        $errors[] = "Full name is required.";
-    }
-    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        $errors[] = "Valid email is required.";
-    }
-    if (!in_array($role, ['admin', 'customer'], true)) {
-        $role = 'customer';
-    }
-
-    // Check email unique (excluding current user)
-    if (empty($errors)) {
-        $sql = "SELECT id FROM users WHERE email = ? AND id <> ? LIMIT 1";
-        if ($stmt = mysqli_prepare($conn, $sql)) {
-            mysqli_stmt_bind_param($stmt, "si", $email, $id);
-            mysqli_stmt_execute($stmt);
-            mysqli_stmt_store_result($stmt);
-            if (mysqli_stmt_num_rows($stmt) > 0) {
-                $errors[] = "Email already in use by another user.";
-            }
-            mysqli_stmt_close($stmt);
-        }
-    }
-
-    if (empty($errors)) {
-        // Build update
-        if ($password !== '') {
-            $hash = password_hash($password, PASSWORD_DEFAULT);
-            $sql = "UPDATE users SET name = ?, email = ?, phone = ?, password = ?, role = ? WHERE id = ?";
-            if ($stmt = mysqli_prepare($conn, $sql)) {
-                mysqli_stmt_bind_param($stmt, "sssssi", $name, $email, $phone, $hash, $role, $id);
-                mysqli_stmt_execute($stmt);
-                mysqli_stmt_close($stmt);
-            }
-        } else {
-            $sql = "UPDATE users SET name = ?, email = ?, phone = ?, role = ? WHERE id = ?";
-            if ($stmt = mysqli_prepare($conn, $sql)) {
-                mysqli_stmt_bind_param($stmt, "ssssi", $name, $email, $phone, $role, $id);
-                mysqli_stmt_execute($stmt);
-                mysqli_stmt_close($stmt);
-            }
-        }
-
-        header("Location: users.php");
-        exit();
-    }
 }
 ?>
 
@@ -177,14 +122,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <section class="tab-panel active">
 
-                <?php if (!empty($errors)): ?>
-                    <div style="color:#721c24; background:#f8d7da; padding:10px; margin-bottom:15px; border-radius:6px;">
-                        <strong>Error:</strong><br>
-                        • <?= implode('<br>• ', array_map('htmlspecialchars', $errors)) ?>
-                    </div>
-                <?php endif; ?>
+                <div id="edit-user-messages"></div>
 
-                <form action="edit_user.php?id=<?= (int) $user['id'] ?>" method="POST" class="form-box">
+                <form id="edit-user-form" data-user-id="<?= (int)$user['id'] ?>" class="form-box">
 
                     <div class="form-group">
                         <label>Full Name</label>
@@ -220,6 +160,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </div>
 
                 </form>
+
+                <script src="../assets/js/admin.js"></script>
 
             </section>
 

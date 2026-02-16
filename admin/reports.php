@@ -281,6 +281,7 @@ if ($format === 'csv') {
                 <li><a href="orders.php">Orders</a></li>
                 <li><a href="menus.php">Menus</a></li>
                 <li><a href="users.php">Users</a></li>
+                <li><a href="activity_logs.php">Activity Logs</a></li>
                 <li><a href="reports.php" class="active">Reports</a></li>
                 <li><a href="../logout.php">Logout</a></li>
             </ul>

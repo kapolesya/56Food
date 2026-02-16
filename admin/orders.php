@@ -70,6 +70,7 @@ if ($result = mysqli_query($conn, $sql)) {
                 <li><a href="orders.php" class="active">Orders</a></li>
                 <li><a href="menus.php">Menus</a></li>
                 <li><a href="users.php">Users</a></li>
+                <li><a href="activity_logs.php">Activity Logs</a></li>
                 <li><a href="reports.php">Reports</a></li>
                 <li><a href="../logout.php">Logout</a></li>
             </ul>
@@ -120,7 +121,6 @@ if ($result = mysqli_query($conn, $sql)) {
                                             <select name="status" onchange="this.form.submit()">
                                                 <option value="pending"<?= $order['status'] === 'pending' ? ' selected' : '' ?>>Pending</option>
                                                 <option value="confirmed"<?= $order['status'] === 'confirmed' ? ' selected' : '' ?>>Confirmed</option>
-                                                <option value="delivered"<?= $order['status'] === 'delivered' ? ' selected' : '' ?>>Delivered</option>
                                                 <option value="cancelled"<?= $order['status'] === 'cancelled' ? ' selected' : '' ?>>Cancelled</option>
                                             </select>
                                         </form>

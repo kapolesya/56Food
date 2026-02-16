@@ -4,64 +4,7 @@ require_once __DIR__ . "/../include/auth.php";
 
 require_admin();
 
-$errors = [];
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $name        = trim($_POST['food_name'] ?? '');
-    $price       = (float) ($_POST['price'] ?? 0);
-    $description = trim($_POST['description'] ?? '');
-    $imageName   = null;
-
-    if ($name === '') {
-        $errors[] = "Food name is required.";
-    }
-    if ($price <= 0) {
-        $errors[] = "Price must be greater than zero.";
-    }
-    if ($description === '') {
-        $errors[] = "Description is required.";
-    }
-
-    // Handle image upload (simple validation)
-    if (!empty($_FILES['food_image']['name'])) {
-        $uploadDir  = __DIR__ . '/../assets/images/foods/';
-        if (!is_dir($uploadDir)) {
-            // Try to create directory if it doesn't exist
-            @mkdir($uploadDir, 0777, true);
-        }
-
-        $original   = basename($_FILES['food_image']['name']);
-        $ext        = pathinfo($original, PATHINFO_EXTENSION);
-        $imageName  = uniqid('food_', true) . '.' . strtolower($ext);
-        $targetPath = $uploadDir . $imageName;
-
-        $allowedExt = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
-        if (!in_array(strtolower($ext), $allowedExt, true)) {
-            $errors[] = "Invalid image type. Allowed: jpg, jpeg, png, gif, webp.";
-        } else {
-            if (!move_uploaded_file($_FILES['food_image']['tmp_name'], $targetPath)) {
-                $errors[] = "Failed to upload image.";
-            }
-        }
-    } else {
-        $errors[] = "Food image is required.";
-    }
-
-    if (empty($errors)) {
-        $sql = "INSERT INTO menu (name, description, price, image, status) 
-                VALUES (?, ?, ?, ?, 'available')";
-        if ($stmt = mysqli_prepare($conn, $sql)) {
-            mysqli_stmt_bind_param($stmt, "ssds", $name, $description, $price, $imageName);
-            if (mysqli_stmt_execute($stmt)) {
-                mysqli_stmt_close($stmt);
-                header("Location: menus.php");
-                exit();
-            }
-            $errors[] = "Failed to save menu item. Please try again.";
-            mysqli_stmt_close($stmt);
-        }
-    }
-}
+// NOTE: menu creation handled via AJAX at /api/admin/menus_create.php
 ?>
 
 <!DOCTYPE html>
@@ -148,17 +91,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <!-- ADD MENU FORM -->
             <section class="tab-panel active">
 
-                <?php if (!empty($errors)): ?>
-                    <div style="color:#721c24; background:#f8d7da; padding:12px; margin-bottom:15px; border:1px solid #f5c6cb; border-radius:6px;">
-                        <strong>There was a problem:</strong><br>
-                        • <?= implode('<br>• ', array_map('htmlspecialchars', $errors)) ?>
-                    </div>
-                <?php endif; ?>
+                <div id="add-menu-messages"></div>
 
-                <form action="add_menus.php"
-                    method="POST"
-                    enctype="multipart/form-data"
-                    class="form-box">
+                <form id="add-menu-form" enctype="multipart/form-data" class="form-box">
 
                     <div class="form-group">
                         <label>Food Name</label>
@@ -189,6 +124,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </div>
 
                 </form>
+
+                <script src="../assets/js/admin.js"></script>
 
             </section>
 

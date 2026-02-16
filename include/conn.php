@@ -1,12 +1,5 @@
 <?php
-// Database connection parameters
-$host = "localhost";
-$user = "root";
-$pass = "";
-$dbname = "56food";
+// include/conn.php kept for compatibility: it imports the centralized DB config
+require_once __DIR__ . '/../config/database.php';
 
-$conn = mysqli_connect($host, $user, $pass, $dbname);
-
-if (!$conn) {
-    die("connection failed:" . mysqli_connect_error());
-}
+// `$conn` is provided by config/database.php

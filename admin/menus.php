@@ -65,6 +65,7 @@ if ($result = mysqli_query($conn, $sql)) {
                 <li><a href="orders.php">Orders</a></li>
                 <li><a href="menus.php" class="active">Menus</a></li>
                 <li><a href="users.php">Users</a></li>
+                <li><a href="activity_logs.php">Activity Logs</a></li>
                 <li><a href="reports.php">Reports</a></li>
                 <li><a href="../logout.php">Logout</a></li>
             </ul>
@@ -110,7 +111,7 @@ if ($result = mysqli_query($conn, $sql)) {
                                     <td>
                                         <a href="edit_menus.php?id=<?= (int) $menu['id'] ?>" class="btn edit" style="color:white; text-decoration:none;">Edit</a>
 
-                                        <form method="POST" action="menus.php" style="display:inline-block; margin-left:5px;">
+                                        <form class="ajax-form" data-api="/56Food/api/admin/menus_action.php" style="display:inline-block; margin-left:5px;">
                                             <input type="hidden" name="menu_id" value="<?= (int) $menu['id'] ?>">
                                             <input type="hidden" name="action" value="toggle_status">
                                             <button type="submit" class="btn add">
@@ -118,7 +119,7 @@ if ($result = mysqli_query($conn, $sql)) {
                                             </button>
                                         </form>
 
-                                        <form method="POST" action="menus.php" style="display:inline-block; margin-left:5px;" onsubmit="return confirm('Delete this menu item?');">
+                                        <form class="ajax-form" data-api="/56Food/api/admin/menus_action.php" data-confirm="Delete this menu item?" style="display:inline-block; margin-left:5px;">
                                             <input type="hidden" name="menu_id" value="<?= (int) $menu['id'] ?>">
                                             <input type="hidden" name="action" value="delete">
                                             <button type="submit" class="btn delete">Delete</button>
@@ -139,3 +140,4 @@ if ($result = mysqli_query($conn, $sql)) {
 </body>
 
 </html>
+<script src="../assets/js/admin.js"></script>

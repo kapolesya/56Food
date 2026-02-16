@@ -18,29 +18,16 @@ $orderCount = count_table($conn, 'orders');
 $menuCount  = count_table($conn, 'menu');
 $userCount  = count_table($conn, 'users');
 
-$totalSales = 0;
-$res = mysqli_query($conn, "
-    SELECT COALESCE(SUM(amount),0) AS total
-    FROM payments
-    WHERE status='completed'
-");
+$totalSales = 0.0;
+// Use confirmed/delivered orders for dashboard 'Total Sales' so pending payments don't underreport
+$res = mysqli_query($conn, "SELECT COALESCE(SUM(`total_amount`),0) AS total FROM `orders` WHERE `status` IN ('confirmed','delivered')");
 if ($res) {
     $row = mysqli_fetch_assoc($res);
-    $totalSales = $row['total'];
+    $totalSales = (float) $row['total'];
+} else {
+    $totalSales = 0.0;
 }
 
-$logs = mysqli_query($conn, "
-    SELECT 
-        al.action,
-        al.description,
-        al.ip_address,
-        al.created_at,
-        u.name AS user_name
-    FROM activity_logs al
-    LEFT JOIN users u ON al.user_id = u.id
-    ORDER BY al.created_at DESC
-    LIMIT 50
-");
 ?>
 <!DOCTYPE html>
 <html>
@@ -78,6 +65,8 @@ $logs = mysqli_query($conn, "
                 <li><a href="orders.php">Orders</a></li>
                 <li><a href="menus.php">Menus</a></li>
                 <li><a href="users.php">Users</a></li>
+                <li><a href="activity_logs.php">Activity Logs</a></li>
+                <li><a href="reports.php">Reports</a></li>
                 <li><a href="../logout.php">Logout</a></li>
             </ul>
         </aside>
@@ -100,31 +89,13 @@ $logs = mysqli_query($conn, "
                 </div>
                 <div class="card">
                     <h3>Total Sales</h3>
-                    <p>Tsh <?= number_format($totalSales) ?></p>
+                    <p>$<?= number_format((float)$totalSales, 2) ?></p>
                 </div>
             </div>
 
-            <h3>Recent Activity Logs</h3>
+            <h3>Activity Logs</h3>
 
-            <table>
-                <tr>
-                    <th>User</th>
-                    <th>Action</th>
-                    <th>Description</th>
-                    <th>IP</th>
-                    <th>Date</th>
-                </tr>
-
-                <?php while ($log = mysqli_fetch_assoc($logs)): ?>
-                    <tr>
-                        <td><?= htmlspecialchars($log['user_name'] ?? 'System') ?></td>
-                        <td><?= htmlspecialchars($log['action']) ?></td>
-                        <td><?= htmlspecialchars($log['description']) ?></td>
-                        <td><?= $log['ip_address'] ?></td>
-                        <td><?= date('d M Y H:i', strtotime($log['created_at'])) ?></td>
-                    </tr>
-                <?php endwhile; ?>
-            </table>
+            <p><a href="activity_logs.php">View full activity logs &raquo;</a></p>
 
         </main>
     </div>

@@ -3,50 +3,10 @@ session_start();
 require_once "include/conn.php";
 require_once "include/auth.php"; // has require_login() function
 
+// Get user ID from session if logged in
 $userId = $_SESSION['user_id'] ?? null;
-
-// Fetch popular menu items
-$menu_items = mysqli_query($conn, "SELECT * FROM menu LIMIT 6");
-
-// Handle Add to Cart
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['menu_id'])) {
-
-    if (!$userId) {
-        header("Location: login.php");
-        exit;
-    }
-
-    $menuId   = (int)$_POST['menu_id'];
-    $quantity = 1; // default for popular dishes
-
-    // Check if item already exists in cart
-    $sql = "SELECT id, quantity FROM cart WHERE user_id = ? AND menu_id = ? LIMIT 1";
-    $stmt = mysqli_prepare($conn, $sql);
-    mysqli_stmt_bind_param($stmt, "ii", $userId, $menuId);
-    mysqli_stmt_execute($stmt);
-    $result = mysqli_stmt_get_result($stmt);
-    $existing = mysqli_fetch_assoc($result);
-    mysqli_stmt_close($stmt);
-
-    if ($existing) {
-        $newQty = $existing['quantity'] + $quantity;
-        $updateSql = "UPDATE cart SET quantity = ? WHERE id = ?";
-        $stmt2 = mysqli_prepare($conn, $updateSql);
-        mysqli_stmt_bind_param($stmt2, "ii", $newQty, $existing['id']);
-        mysqli_stmt_execute($stmt2);
-        mysqli_stmt_close($stmt2);
-    } else {
-        $insertSql = "INSERT INTO cart (user_id, menu_id, quantity) VALUES (?, ?, ?)";
-        $stmt2 = mysqli_prepare($conn, $insertSql);
-        mysqli_stmt_bind_param($stmt2, "iii", $userId, $menuId, $quantity);
-        mysqli_stmt_execute($stmt2);
-        mysqli_stmt_close($stmt2);
-    }
-
-    header("Location: cart.php");
-    exit();
-}
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -106,6 +66,78 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['menu_id'])) {
             cursor: pointer;
         }
     </style>
+    <style>
+    .features {
+        display: flex;
+        justify-content: center;
+        gap: 50px;
+        flex-wrap: wrap;
+        text-align: center;
+        margin-bottom: 50px;
+    }
+
+    .feature img {
+        width: 96px;
+        height: 96px;
+        margin-bottom: 10px;
+    }
+
+    .feature h3 {
+        margin: 10px 0 5px;
+    }
+
+    /* ✅ HAPA NDIPO TUMEBADILISHA */
+    .menu-items {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr); /* 3 cards per row */
+        gap: 20px;
+        max-width: 1100px;
+        margin: 0 auto;
+    }
+
+    .menu-item {
+        border: 1px solid #ccc;
+        padding: 15px;
+        border-radius: 8px;
+        text-align: center;
+        background: #fff;
+    }
+
+    .menu-item img {
+        width: 100%;
+        height: 180px;
+        object-fit: cover;
+        border-radius: 8px;
+    }
+
+    .order-btn {
+        margin-top: 10px;
+        padding: 10px 15px;
+        background-color: #ff6347;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    .order-btn:hover {
+        background-color: #e5533d;
+    }
+
+    /* ✅ Responsive */
+    @media (max-width: 992px) {
+        .menu-items {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 600px) {
+        .menu-items {
+            grid-template-columns: 1fr;
+        }
+    }
+    </style>
+
 </head>
 
 <body>
@@ -115,10 +147,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['menu_id'])) {
         <nav>
             <a href="#hero">Home</a>
             <a href="#features">Features</a>
-            <a href="#menu">Menu</a>
+            <a href="menu.php">Menu</a>
             <a href="#about">About</a>
             <?php if ($userId): ?>
-                <a href="cart.php">Cart</a>
+                <?php
+                    $cartCount = 0;
+                    $cstmt = mysqli_prepare($conn, "SELECT COALESCE(SUM(quantity),0) as total FROM cart WHERE user_id = ?");
+                    if ($cstmt) {
+                        mysqli_stmt_bind_param($cstmt, "i", $userId);
+                        mysqli_stmt_execute($cstmt);
+                        $cres = mysqli_stmt_get_result($cstmt);
+                        $crow = mysqli_fetch_assoc($cres);
+                        $cartCount = (int)($crow['total'] ?? 0);
+                        mysqli_stmt_close($cstmt);
+                    }
+                ?>
+                <a href="cart.php">Cart <span id="cartCount"><?= $cartCount ?></span></a>
                 <a href="orders.php">My Orders</a>
                 <a href="logout.php">Logout (<?= htmlspecialchars($_SESSION['user_name'] ?? '') ?>)</a>
             <?php else: ?>
@@ -200,6 +244,58 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['menu_id'])) {
         <p>&copy; 2026 56Food. All rights reserved.</p>
         <p>Designed with ❤️ for food lovers</p>
     </footer>
+
+    <!-- Back to top button -->
+    <button id="scrollTopBtn" title="Back to top" aria-label="Back to top">▲</button>
+
+    <style>
+    /* Back-to-top button styling */
+    #scrollTopBtn {
+        position: fixed;
+        right: 20px;
+        bottom: 28px;
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        border: none;
+        background: #ff6347;
+        color: #fff;
+        font-size: 20px;
+        cursor: pointer;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        z-index: 9999;
+        display: none; /* shown via JS when scrolled down */
+        align-items: center;
+        justify-content: center;
+    }
+    #scrollTopBtn:focus { outline: 2px solid #fff; outline-offset: 2px; }
+    </style>
+
+    <script src="assets/js/site.js"></script>
+
+    <script>
+    (function () {
+        const btn = document.getElementById('scrollTopBtn');
+        const showAfter = 300; // px scrolled before showing button
+
+        function toggleBtn() {
+            if (window.scrollY > showAfter) {
+                btn.style.display = 'flex';
+            } else {
+                btn.style.display = 'none';
+            }
+        }
+
+        // Smooth scroll to top
+        btn.addEventListener('click', function () {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        // show/hide on scroll and on load
+        window.addEventListener('scroll', toggleBtn);
+        window.addEventListener('load', toggleBtn);
+    })();
+    </script>
 </body>
 
 </html>

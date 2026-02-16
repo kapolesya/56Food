@@ -168,6 +168,7 @@ if ($result = mysqli_query($conn, $sql)) {
                 <li><a href="orders.php">Orders</a></li>
                 <li><a href="menus.php">Menus</a></li>
                 <li><a href="users.php" class="active">Users</a></li>
+                <li><a href="activity_logs.php">Activity Logs</a></li>
                 <li><a href="reports.php">Reports</a></li>
                 <li><a href="../logout.php">Logout</a></li>
             </ul>
@@ -214,7 +215,7 @@ if ($result = mysqli_query($conn, $sql)) {
 
                                         <!-- Delete (POST method) -->
                                         <?php if ((int)$user['id'] !== (int)$_SESSION['user_id']): ?>
-                                            <form method="POST" onsubmit="return confirm('Are you sure you want to delete this user?');">
+                                            <form class="ajax-form" data-api="/56Food/api/admin/users_action.php" data-confirm="Are you sure you want to delete this user?">
                                                 <input type="hidden" name="action" value="delete_user">
                                                 <input type="hidden" name="user_id" value="<?= (int)$user['id'] ?>">
                                                 <button type="submit" class="btn btn-delete">Delete</button>
@@ -222,17 +223,17 @@ if ($result = mysqli_query($conn, $sql)) {
                                         <?php endif; ?>
 
                                         <!-- Change role -->
-                                        <form method="POST" action="users.php">
+                                        <form class="ajax-form" data-api="/56Food/api/admin/users_action.php">
                                             <input type="hidden" name="action" value="change_role">
                                             <input type="hidden" name="user_id" value="<?= (int)$user['id'] ?>">
-                                            <select name="role" class="btn-select" onchange="this.form.submit()">
+                                            <select name="role" class="btn-select" onchange="submitAjaxForm(this)">
                                                 <option value="customer" <?= $user['role'] === 'customer' ? 'selected' : '' ?>>Customer</option>
                                                 <option value="admin" <?= $user['role'] === 'admin' ? 'selected' : '' ?>>Admin</option>
                                             </select>
                                         </form>
 
                                         <!-- Activate / Deactivate -->
-                                        <form method="POST" action="users.php">
+                                        <form class="ajax-form" data-api="/56Food/api/admin/users_action.php">
                                             <input type="hidden" name="action" value="toggle_status">
                                             <input type="hidden" name="user_id" value="<?= (int)$user['id'] ?>">
                                             <button type="submit" class="btn-toggle">
@@ -251,3 +252,4 @@ if ($result = mysqli_query($conn, $sql)) {
 </body>
 
 </html>
+<script src="../assets/js/admin.js"></script>

@@ -2,6 +2,7 @@
 require_once __DIR__ . "/../include/conn.php";
 require_once __DIR__ . "/../include/auth.php";
 
+
 require_admin();
 
 // Check menu ID
@@ -31,48 +32,7 @@ $image       = $menu['image'] ?? '';
 $success_msg = '';
 $error_msg   = '';
 
-// Handle form submission
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $name        = trim($_POST['name'] ?? '');
-    $price       = trim($_POST['price'] ?? '');
-    $description = trim($_POST['description'] ?? '');
-
-    if (!$name || !$price || !$description) {
-        $error_msg = "All fields are required.";
-    } else {
-        // Handle image upload if new image provided
-        $image_to_save = $image;
-        if (!empty($_FILES['food_image']['name'])) {
-            $upload_dir = __DIR__ . "/../uploads/";
-            $tmp_name   = $_FILES['food_image']['tmp_name'];
-            $filename   = time() . '_' . basename($_FILES['food_image']['name']);
-            $target     = $upload_dir . $filename;
-
-            if (move_uploaded_file($tmp_name, $target)) {
-                // Delete old image
-                if ($image && file_exists($upload_dir . $image)) {
-                    unlink($upload_dir . $image);
-                }
-                $image_to_save = $filename;
-            } else {
-                $error_msg = "Failed to upload new image.";
-            }
-        }
-
-        if (empty($error_msg)) {
-            // Update menu in DB
-            $stmt = $conn->prepare("UPDATE menu SET name = ?, price = ?, description = ?, image = ? WHERE id = ?");
-            $stmt->bind_param("sdssi", $name, $price, $description, $image_to_save, $menu_id);
-            if ($stmt->execute()) {
-                $success_msg = "Menu updated successfully!";
-                $image = $image_to_save; // update current image variable
-            } else {
-                $error_msg = "Failed to update menu.";
-            }
-            $stmt->close();
-        }
-    }
-}
+// Submission handled via AJAX at /api/admin/menus_update.php
 ?>
 
 <!DOCTYPE html>
@@ -166,9 +126,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </header>
 
             <section class="tab-panel active">
-                <form action="" method="POST" enctype="multipart/form-data" class="form-box">
-                    <?php if (!empty($success_msg)) echo "<div class='success'>$success_msg</div>"; ?>
-                    <?php if (!empty($error_msg)) echo "<div class='error'>$error_msg</div>"; ?>
+                <div id="edit-menu-messages"></div>
+
+                <form id="edit-menu-form" data-menu-id="<?= (int)$menu['id'] ?>" enctype="multipart/form-data" class="form-box">
 
                     <div class="form-group">
                         <label>Food Name</label>
@@ -189,7 +149,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <label>Food Image</label>
                         <?php if (!empty($image)): ?>
                             <br>
-                            <img src="../uploads/<?= htmlspecialchars($image) ?>" class="menu-image" alt="Menu Image">
+                            <img src="../assets/images/foods/<?= htmlspecialchars($image) ?>" class="menu-image" alt="Menu Image">
                             <br>
                         <?php endif; ?>
                         <input type="file" name="food_image" accept="image/*">
@@ -201,6 +161,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <a href="menus.php" class="btn delete">Cancel</a>
                     </div>
                 </form>
+
+                <script src="../assets/js/admin.js"></script>
             </section>
         </main>
     </div>
